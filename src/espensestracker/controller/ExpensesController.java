@@ -32,8 +32,8 @@ public class ExpensesController implements IExpensesController {
     }
 
     @Override
-    public int addNewExpense(ExpensesDto expenditureDto) throws SQLException, ClassNotFoundException {
-        expense = modelMapper.map(expenditureDto, Expenses.class);
+    public int addNewExpense(ExpensesDto expenseDto) throws SQLException, ClassNotFoundException {
+        expense = modelMapper.map(expenseDto, Expenses.class);
         return expense.AddExpense();
     }
 
@@ -42,6 +42,12 @@ public class ExpensesController implements IExpensesController {
         }.getType();        
          ArrayList<Expenses> expenditures = expense.GetAlExpensesListByMonth(month);
         return modelMapper.map(expenditures, listType);
+    }
+
+    @Override
+    public int editExpense(ExpensesDto expenseDto) throws SQLException, ClassNotFoundException {
+        expense = modelMapper.map(expenseDto, Expenses.class);
+        return expense.EditExpense();
     }
 
 }

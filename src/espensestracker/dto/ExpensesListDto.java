@@ -5,16 +5,37 @@
  */
 package espensestracker.dto;
 
+import java.util.Date;
+
 /**
  *
  * @author Aravinda
  */
 public class ExpensesListDto {
-    
+    private int expenseId;
     private double amount;
+    private Date date;
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+    
     
     private String categoryName;
 
+    public int getExpenseId() {
+        return expenseId;
+    }
+
+    public void setExpenseId(int expenseId) {
+        this.expenseId = expenseId;
+    }
+
+    
     public double getAmount() {
         return amount;
     }

@@ -23,6 +23,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import espensestracker.controller.IExpensesController;
+import espensestracker.viewer.ViewHandler;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
@@ -31,10 +34,14 @@ import espensestracker.controller.IExpensesController;
 public class ExpensesListView extends javax.swing.JPanel {
 
     private IExpensesController expenseController;
+    private int currentEditingRowIndex = -1;
+    private ArrayList<ExpensesListDto> currentExpenses;
+    private int currentMonth;
 
-     
     public ExpensesListView(int month) {
+        currentExpenses = new ArrayList();
         System.out.println("Expenses list view called");
+        currentMonth = month;
         initComponents();
         DefaultTableCellRenderer tableCellRenderer = new DefaultTableCellRenderer();
         tableCellRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -43,15 +50,31 @@ public class ExpensesListView extends javax.swing.JPanel {
         tableColumn.setCellRenderer(tableCellRenderer);
         expenseController = new ExpensesController();
         loadExpensesData(month);
+//        tblExpenses.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+//            public void valueChanged(ListSelectionEvent event) {
+//                Object a = tblExpenses.getValueAt(tblExpenses.getSelectedRow(), 0);
+//                System.out.println(tblExpenses.getValueAt(tblExpenses.getSelectedRow(), 0).toString());
+//            }
+//        });
+
+        tblExpenses.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = tblExpenses.rowAtPoint(evt.getPoint());
+                int col = tblExpenses.columnAtPoint(evt.getPoint());
+                currentEditingRowIndex = row;
+                btnExpenseEdit.setEnabled(true);
+            }
+        });
     }
 
     private double loadExpensesData(int month) {
         double total = 0.00;
         try {
-            ArrayList<ExpensesListDto> expensesList = expenseController.getExpensesListByMonth(month);
+            currentExpenses = expenseController.getExpensesListByMonth(month);
             DefaultTableModel model = (DefaultTableModel) tblExpenses.getModel();
             model.setNumRows(0);
-            total = expensesList.stream().map((exp) -> {
+            total = currentExpenses.stream().map((exp) -> {
                 model.addRow(new Object[]{exp.getCategoryName(),
                     Formatter.currencyFormat(exp.getAmount())});
                 return exp;
@@ -76,6 +99,7 @@ public class ExpensesListView extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblExpenses = new javax.swing.JTable();
         btnExpenseAdd = new javax.swing.JButton();
+        btnExpenseEdit = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(228, 239, 247));
         setPreferredSize(new java.awt.Dimension(150, 0));
@@ -113,6 +137,11 @@ public class ExpensesListView extends javax.swing.JPanel {
         });
         tblExpenses.setShowHorizontalLines(false);
         tblExpenses.setShowVerticalLines(false);
+        tblExpenses.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblExpensesMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblExpenses);
 
         btnExpenseAdd.setBackground(new java.awt.Color(159, 199, 247));
@@ -126,18 +155,33 @@ public class ExpensesListView extends javax.swing.JPanel {
             }
         });
 
+        btnExpenseEdit.setBackground(new java.awt.Color(159, 199, 247));
+        btnExpenseEdit.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnExpenseEdit.setForeground(new java.awt.Color(25, 144, 234));
+        btnExpenseEdit.setText("Edit");
+        btnExpenseEdit.setToolTipText("");
+        btnExpenseEdit.setEnabled(false);
+        btnExpenseEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExpenseEditActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnExpenseAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnExpenseAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnExpenseEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel2)
                     .addComponent(jLabel1))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 416, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 712, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -150,8 +194,10 @@ public class ExpensesListView extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnExpenseAdd)
-                .addContainerGap(133, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnExpenseAdd)
+                    .addComponent(btnExpenseEdit))
+                .addContainerGap(106, Short.MAX_VALUE))
         );
 
         jLabel1.getAccessibleContext().setAccessibleName("expensesLabel");
@@ -163,9 +209,36 @@ public class ExpensesListView extends javax.swing.JPanel {
         expenseView.setVisible(true);
     }//GEN-LAST:event_btnExpenseAddActionPerformed
 
+    private void tblExpensesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblExpensesMouseClicked
+        int row = tblExpenses.rowAtPoint(evt.getPoint());
+        int col = tblExpenses.columnAtPoint(evt.getPoint());
+        if (row >= 0 && col >= 0) {
+
+        }
+    }//GEN-LAST:event_tblExpensesMouseClicked
+
+    private void btnExpenseEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExpenseEditActionPerformed
+        System.out.println(this.currentEditingRowIndex);
+        if (this.currentEditingRowIndex > -1 && currentExpenses.size() > 0) {
+            ExpensesListDto editingRow = currentExpenses.get(currentEditingRowIndex);
+            ExpensesAddView expenseView = new ExpensesAddView(null, true, editingRow, currentEditingRowIndex);
+            expenseView.setLocationRelativeTo(null);
+            expenseView.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                    System.out.println("Espenses Edit closed");
+                    currentEditingRowIndex = -1;
+                    loadExpensesData(currentMonth);
+                }
+            });
+            expenseView.setVisible(true);
+        }
+    }//GEN-LAST:event_btnExpenseEditActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnExpenseAdd;
+    private javax.swing.JButton btnExpenseEdit;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;

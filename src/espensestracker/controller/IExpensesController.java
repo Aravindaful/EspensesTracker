@@ -15,9 +15,11 @@ import java.util.ArrayList;
  * @author Aravinda
  */
 public interface IExpensesController {
-    
+
     int addNewExpense(ExpensesDto expenseDto) throws SQLException, ClassNotFoundException;
-    
+
+    int editExpense(ExpensesDto expenseDto) throws SQLException, ClassNotFoundException;
+
     ArrayList<ExpensesListDto> getExpensesListByMonth(int month) throws SQLException, ClassNotFoundException;
-    
+
 }

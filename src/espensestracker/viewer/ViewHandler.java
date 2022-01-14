@@ -19,7 +19,7 @@ public class ViewHandler {
     static JPanel panel;
 
     public static void OpenViewer(ViewIndex viewIndex, int month, JPanel container) {
-        clear(currentContainer);
+        clear();
         ICurrentViewer currentViewer;
         currentContainer = container;
         currentViewer = ViewerProvider.provideCurrentViewer("JPanel");
@@ -28,7 +28,7 @@ public class ViewHandler {
         container.add(panel);
     }
 
-    public static void clear(JPanel container) {
+    public static void clear() {
         if (currentContainer != null && panel != null) {
             currentContainer.remove(panel);
             currentContainer.revalidate();
@@ -38,7 +38,7 @@ public class ViewHandler {
 
     public static void monthOptionChange(int month, ViewIndex viewIndex, JPanel container) {
         if (panel != null) {
-            clear(container);
+            clear();
         }
         OpenViewer(viewIndex, month, container);
     }

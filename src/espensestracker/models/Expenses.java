@@ -74,9 +74,25 @@ public class Expenses {
 
     }
 
+    public int EditExpense() throws SQLException, ClassNotFoundException {
+
+        String query = "UPDATE expense SET Amount =? , Date=? , CategoryId=? WHERE expenseId=?";
+        PreparedStatement preparedStatement = DBConnection.GetConnection().prepareStatement(query);
+        preparedStatement.setDouble(1, this.getAmount());
+        preparedStatement.setDate(2, (java.sql.Date) this.getDate());
+        preparedStatement.setLong(3, this.getCategory().getCategoryId());
+        preparedStatement.setLong(4, this.getExpenseId());
+        try {
+            return preparedStatement.executeUpdate();
+        } finally {
+            preparedStatement.close();
+        }
+
+    }
+
     public ArrayList<Expenses> GetAlExpensesListByMonth(int month) throws SQLException, ClassNotFoundException {
         ArrayList<Expenses> expenses = new ArrayList<>();
-        String query = "SELECT sum(Amount) as Total, C.CategoryName FROM expense as E "
+        String query = "SELECT sum(Amount) as Total, C.CategoryName, ExpenseId, Date FROM expense as E "
                 + "INNER JOIN category as C ON E.CategoryId = C.CategoryId "
                 + "WHERE MONTH(E.Date) = ? group by C.CategoryName ";
 
@@ -86,13 +102,15 @@ public class Expenses {
             ResultSet result = preparedStatement.executeQuery();
             while (result.next()) {
                 Expenses expenditure = new Expenses();
+                expenditure.expenseId = result.getInt("ExpenseId");
                 expenditure.amount = result.getDouble("Total");
+                expenditure.date = result.getDate("Date");
                 expenditure.category = new Category();
                 expenditure.category.setCategoryName(result.getString("CategoryName"));
                 expenses.add(expenditure);
             }
             return expenses;
-            
+
         } finally {
             preparedStatement.close();
         }

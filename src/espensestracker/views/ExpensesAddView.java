@@ -22,6 +22,9 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import espensestracker.controller.ICategoryController;
 import espensestracker.controller.IExpensesController;
+import espensestracker.dto.ExpensesListDto;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  *
@@ -29,21 +32,36 @@ import espensestracker.controller.IExpensesController;
  */
 public class ExpensesAddView extends javax.swing.JDialog {
 
-    private IExpensesController expenditureControllerInf;
-    private ICategoryController categoryControllerInf;
+    private IExpensesController expenditureController;
+    private ICategoryController categoryController;
+    ExpensesListDto currentEditingRow;
 
     /**
-     * Creates new form AddExpenditureView
+     * Creates new form AddExpensesView
      */
     public ExpensesAddView(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         this.setTitle("Add New Expense");
-        expenditureControllerInf = new ExpensesController();
-        categoryControllerInf = new CategoryController();
+        expenditureController = new ExpensesController();
+        categoryController = new CategoryController();
         numOnly(ammountTxt);
-        loadCategories();
+        loadCategories(-1, null);
+        currentEditingRow = null;
+    }
 
+    /**
+     * Creates edit form ExpensesView
+     */
+    public ExpensesAddView(java.awt.Frame parent, boolean modal, ExpensesListDto editingRow, int index) {
+        super(parent, modal);
+        initComponents();
+        this.setTitle("Edit Expense");
+        expenditureController = new ExpensesController();
+        categoryController = new CategoryController();
+        numOnly(ammountTxt);
+        loadCategories(0, editingRow);
+        currentEditingRow = editingRow;
     }
 
     /**
@@ -132,13 +150,19 @@ public class ExpensesAddView extends javax.swing.JDialog {
     }//GEN-LAST:event_ammountTxtActionPerformed
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
-        ExpensesDto expenditureDto = new ExpensesDto();
-        expenditureDto.setCategoryId(((CategoryDto) categoryCmb.getSelectedItem()).getCategoryId());
+        ExpensesDto savingExpense = new ExpensesDto();
+        savingExpense.setCategoryId(((CategoryDto) categoryCmb.getSelectedItem()).getCategoryId());
         try {
-            expenditureDto.setAmount(Double.parseDouble(ammountTxt.getText()));
-            expenditureDto.setDate(new java.sql.Date(datePicker.getDate().getTime()));
+            savingExpense.setAmount(Double.parseDouble(ammountTxt.getText()));
+            savingExpense.setDate(new java.sql.Date(datePicker.getDate().getTime()));
             try {
-                expenditureControllerInf.addNewExpense(expenditureDto);
+                if (this.currentEditingRow == null) {
+                    expenditureController.addNewExpense(savingExpense);
+                } else {
+                    savingExpense.setExpenseId(this.currentEditingRow.getExpenseId());
+                    expenditureController.editExpense(savingExpense);
+                }
+
                 this.setVisible(false);
                 this.dispose();
             } catch (SQLException | ClassNotFoundException ex) {
@@ -151,11 +175,24 @@ public class ExpensesAddView extends javax.swing.JDialog {
 
     }//GEN-LAST:event_saveBtnActionPerformed
 
-    private void loadCategories() {
+    private void loadCategories(int index, ExpensesListDto editingRow) {
         try {
-            Vector<CategoryDto> list = new Vector<>(categoryControllerInf.GetCategoryList());
+            Vector<CategoryDto> list = new Vector<>(categoryController.GetCategoryList());
             final DefaultComboBoxModel model = new DefaultComboBoxModel(list);
             categoryCmb.setModel(model);
+            if (index > -1) {
+                ArrayList<CategoryDto> arraylist = new ArrayList<CategoryDto>(list);
+                Optional<CategoryDto> categoryd = arraylist.stream().filter((x) -> editingRow.getCategoryName().equals(x.getCategoryName()))
+                        .findFirst();
+                if (categoryd.isPresent()) {
+                    CategoryDto aa = categoryd.get();
+                    categoryCmb.setSelectedItem(aa);
+                    ammountTxt.setText(editingRow.getAmount() + "");
+                    datePicker.setDate(editingRow.getDate());
+                }
+
+            }
+            // categoryCmb.setSelectedIndex(0);
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(ExpensesAddView.class.getName()).log(Level.SEVERE, null, ex);
         }

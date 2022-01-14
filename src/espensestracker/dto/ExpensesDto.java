@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public class ExpensesDto {
     
-    private long expenditureId;
+    private long expenseId;
     
     private double amount;
     
@@ -21,12 +21,12 @@ public class ExpensesDto {
     
     private Date date;
 
-    public long getExpenditureId() {
-        return expenditureId;
+    public long getExpenseId() {
+        return expenseId;
     }
 
-    public void setExpenditureId(long expenditureId) {
-        this.expenditureId = expenditureId;
+    public void setExpenseId(long expensId) {
+        this.expenseId = expensId;
     }
 
     public double getAmount() {

@@ -138,8 +138,15 @@ public class CategoryListView extends javax.swing.JPanel {
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         CategoryAddView addCategoryView = new CategoryAddView();
         addCategoryView.setLocationRelativeTo(null);
+        addCategoryView.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                System.out.println("Espenses Edit closed");
+                loadCategoryData();
+            }
+        });
         addCategoryView.setVisible(true);
-        loadCategoryData();
+
     }//GEN-LAST:event_addButtonActionPerformed
 
 

@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import espensestracker.controller.ICategoryController;
 import espensestracker.util.IconCreator;
 import java.awt.Image;
+import java.util.Date;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -111,6 +113,10 @@ public class CategoryAddView extends javax.swing.JFrame {
             } catch (SQLException | ClassNotFoundException ex) {
                 Logger.getLogger(CategoryAddView.class.getName()).log(Level.SEVERE, null, ex);
             }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please enter category name", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+             
         }
     }//GEN-LAST:event_AddButtonActionPerformed
 

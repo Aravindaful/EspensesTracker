@@ -25,6 +25,7 @@ import espensestracker.dto.IncomeListDto;
 import espensestracker.util.IconCreator;
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -212,6 +213,12 @@ public class IncomeAddView extends javax.swing.JDialog {
         IncomeDto incomeDto = new IncomeDto();
 
         try {
+            Date dat = datePicker.getDate();
+            String amount = ammountTxt.getText();
+            if (dat == null || amount == null) {
+                JOptionPane.showMessageDialog(this, "Please enter both date and amount", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             try {
                 incomeDto.setCategoryId(((CategoryDto) categoryCmb.getSelectedItem()).getCategoryId());
                 incomeDto.setAmount(Double.parseDouble(ammountTxt.getText()));

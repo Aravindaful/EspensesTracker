@@ -78,7 +78,7 @@ public class Income {
      
      public ArrayList<Income> GetIncomeListByMonth(int month) throws SQLException, ClassNotFoundException {
         ArrayList<Income> incomes = new ArrayList<>();
-        String query = "SELECT sum(Amount) as Total, C.CategoryName FROM income as E "
+        String query = "SELECT sum(Amount) as Total, C.CategoryName, IncomeId, Date FROM income as E "
                 + "INNER JOIN category as C ON E.CategoryId = C.CategoryId "
                 + "WHERE MONTH(E.Date) = ? group by C.CategoryName ";
 
@@ -88,7 +88,9 @@ public class Income {
             ResultSet result = preparedStatement.executeQuery();
             while (result.next()) {
                 Income income = new Income();
+                income.incomeId = result.getLong("IncomeId");
                 income.amount = result.getDouble("Total");
+                income.date = result.getDate("Date");
                 income.category = new Category();
                 income.category.setCategoryName(result.getString("CategoryName"));
                 incomes.add(income);
@@ -108,6 +110,35 @@ public class Income {
         preparedStatement.setDate(2, (java.sql.Date) this.getDate());
         preparedStatement.setLong(3, this.getCategory().getCategoryId());
         try {
+            return preparedStatement.executeUpdate();
+        } finally {
+            preparedStatement.close();
+        }
+
+    }
+     
+      public int UpdateIncome() throws SQLException, ClassNotFoundException {
+
+        String query = "UPDATE Income SET Amount=?,Date=?,CategoryId=? WHERE IncomeId=?";
+        PreparedStatement preparedStatement = DBConnection.GetConnection().prepareStatement(query);
+        preparedStatement.setDouble(1, this.getAmount());
+        preparedStatement.setDate(2, (java.sql.Date) this.getDate());
+        preparedStatement.setLong(3, this.getCategory().getCategoryId());
+        preparedStatement.setLong(4, this.getIncomeId());
+        try {
+            return preparedStatement.executeUpdate();
+        } finally {
+            preparedStatement.close();
+        }
+
+    }
+      
+      public int DeleteIncome(long incomeId) throws SQLException, ClassNotFoundException {
+
+        String query = "DELETE from Income WHERE IncomeId=?";
+        PreparedStatement preparedStatement = DBConnection.GetConnection().prepareStatement(query);
+        preparedStatement.setLong(1, incomeId);
+          try {
             return preparedStatement.executeUpdate();
         } finally {
             preparedStatement.close();

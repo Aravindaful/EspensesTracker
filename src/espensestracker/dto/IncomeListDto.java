@@ -5,15 +5,35 @@
  */
 package espensestracker.dto;
 
+import java.util.Date;
+
 /**
  *
  * @author Aravinda
  */
 public class IncomeListDto {
-    
+
+    private long incomeId;
     private double amount;
-    
+
     private String categoryName;
+    private Date date;
+
+    public long getIncomeId() {
+        return incomeId;
+    }
+
+    public void setIncomeId(long incomeId) {
+        this.incomeId = incomeId;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
     public double getAmount() {
         return amount;
@@ -30,5 +50,5 @@ public class IncomeListDto {
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
-    
+
 }

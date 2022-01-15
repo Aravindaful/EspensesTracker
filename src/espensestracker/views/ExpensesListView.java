@@ -24,6 +24,11 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import espensestracker.controller.IExpensesController;
 import espensestracker.viewer.ViewHandler;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -64,6 +69,7 @@ public class ExpensesListView extends javax.swing.JPanel {
                 int col = tblExpenses.columnAtPoint(evt.getPoint());
                 currentEditingRowIndex = row;
                 btnExpenseEdit.setEnabled(true);
+                btnExpenseDelete.setEnabled(true);
             }
         });
     }
@@ -96,10 +102,11 @@ public class ExpensesListView extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        scrollPaneExpenseListView = new javax.swing.JScrollPane();
         tblExpenses = new javax.swing.JTable();
         btnExpenseAdd = new javax.swing.JButton();
         btnExpenseEdit = new javax.swing.JButton();
+        btnExpenseDelete = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(228, 239, 247));
         setPreferredSize(new java.awt.Dimension(150, 0));
@@ -142,7 +149,7 @@ public class ExpensesListView extends javax.swing.JPanel {
                 tblExpensesMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(tblExpenses);
+        scrollPaneExpenseListView.setViewportView(tblExpenses);
 
         btnExpenseAdd.setBackground(new java.awt.Color(159, 199, 247));
         btnExpenseAdd.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
@@ -167,6 +174,18 @@ public class ExpensesListView extends javax.swing.JPanel {
             }
         });
 
+        btnExpenseDelete.setBackground(new java.awt.Color(159, 199, 247));
+        btnExpenseDelete.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnExpenseDelete.setForeground(new java.awt.Color(25, 144, 234));
+        btnExpenseDelete.setText("Delete");
+        btnExpenseDelete.setToolTipText("");
+        btnExpenseDelete.setEnabled(false);
+        btnExpenseDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExpenseDeleteActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -176,12 +195,14 @@ public class ExpensesListView extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnExpenseAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnExpenseEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(btnExpenseEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnExpenseDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel2)
                     .addComponent(jLabel1))
-                .addGap(0, 416, Short.MAX_VALUE))
+                .addGap(0, 304, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
+                .addComponent(scrollPaneExpenseListView, javax.swing.GroupLayout.DEFAULT_SIZE, 651, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -192,12 +213,13 @@ public class ExpensesListView extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(scrollPaneExpenseListView, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnExpenseAdd)
-                    .addComponent(btnExpenseEdit))
-                .addContainerGap(106, Short.MAX_VALUE))
+                    .addComponent(btnExpenseEdit)
+                    .addComponent(btnExpenseDelete))
+                .addContainerGap(124, Short.MAX_VALUE))
         );
 
         jLabel1.getAccessibleContext().setAccessibleName("expensesLabel");
@@ -206,6 +228,13 @@ public class ExpensesListView extends javax.swing.JPanel {
     private void btnExpenseAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExpenseAddActionPerformed
         ExpensesAddView expenseView = new ExpensesAddView(null, true);
         expenseView.setLocationRelativeTo(null);
+        expenseView.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                    System.out.println("Espenses add closed");
+                     loadExpensesData(currentMonth);
+                }
+            });
         expenseView.setVisible(true);
     }//GEN-LAST:event_btnExpenseAddActionPerformed
 
@@ -227,6 +256,8 @@ public class ExpensesListView extends javax.swing.JPanel {
                 @Override
                 public void windowClosed(java.awt.event.WindowEvent windowEvent) {
                     System.out.println("Espenses Edit closed");
+                    btnExpenseEdit.setEnabled(false);
+                    btnExpenseDelete.setEnabled(false);
                     currentEditingRowIndex = -1;
                     loadExpensesData(currentMonth);
                 }
@@ -235,13 +266,36 @@ public class ExpensesListView extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnExpenseEditActionPerformed
 
+    private void btnExpenseDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExpenseDeleteActionPerformed
+        int reply = JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            System.out.println("Yes clicked");
+            ExpensesListDto editingRow = currentExpenses.get(currentEditingRowIndex);
+
+            try {
+                int result = expenseController.deleteExpensesById(editingRow.getExpenseId());
+                if (result > -1) {
+                    btnExpenseEdit.setEnabled(false);
+                    btnExpenseDelete.setEnabled(false);
+                    currentEditingRowIndex = -1;
+                    loadExpensesData(currentMonth);
+                }
+            } catch (Exception ex) {
+                Logger.getLogger(ExpensesListView.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, "Failed to delete this record. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnExpenseDeleteActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnExpenseAdd;
+    private javax.swing.JButton btnExpenseDelete;
     private javax.swing.JButton btnExpenseEdit;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane scrollPaneExpenseListView;
     private javax.swing.JTable tblExpenses;
     // End of variables declaration//GEN-END:variables
 }

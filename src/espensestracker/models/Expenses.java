@@ -90,6 +90,20 @@ public class Expenses {
 
     }
 
+    public int DeleteExpenseByCategoryId(long expenseId) throws SQLException, ClassNotFoundException {
+
+        String query = "DELETE from expense WHERE CategoryId in (SELECT * FROM (SELECT CategoryId from expense where ExpenseId=?)  as t)";
+        PreparedStatement preparedStatement = DBConnection.GetConnection().prepareStatement(query);
+        preparedStatement.setLong(1, expenseId);
+
+        try {
+            return preparedStatement.executeUpdate();
+        } finally {
+            preparedStatement.close();
+        }
+
+    }
+
     public ArrayList<Expenses> GetAlExpensesListByMonth(int month) throws SQLException, ClassNotFoundException {
         ArrayList<Expenses> expenses = new ArrayList<>();
         String query = "SELECT sum(Amount) as Total, C.CategoryName, ExpenseId, Date FROM expense as E "

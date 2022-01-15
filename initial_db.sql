@@ -43,4 +43,6 @@ INSERT INTO `expenses_tracker`.`category` (`CategoryId`, `CategoryName`) VALUES 
 INSERT INTO `expenses_tracker`.`category` (`CategoryId`, `CategoryName`) VALUES ('6', 'Sports');
 INSERT INTO `expenses_tracker`.`category` (`CategoryId`, `CategoryName`) VALUES ('7', 'Travel');
 INSERT INTO `expenses_tracker`.`category` (`CategoryId`, `CategoryName`) VALUES ('8', 'Kids');
+INSERT INTO `expenses_tracker`.`category` (`CategoryId`, `CategoryName`) VALUES ('8', 'Fund');
+INSERT INTO `expenses_tracker`.`category` (`CategoryId`, `CategoryName`) VALUES ('8', 'Rent');
 

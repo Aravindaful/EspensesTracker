@@ -50,4 +50,9 @@ public class ExpensesController implements IExpensesController {
         return expense.EditExpense();
     }
 
+    @Override
+    public int deleteExpensesById(long categoryId) throws SQLException, ClassNotFoundException {
+               return expense.DeleteExpenseByCategoryId(categoryId);
+    }
+
 }

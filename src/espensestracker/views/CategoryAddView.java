@@ -11,6 +11,8 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import espensestracker.controller.ICategoryController;
+import espensestracker.util.IconCreator;
+import java.awt.Image;
 
 /**
  *
@@ -24,10 +26,24 @@ public class CategoryAddView extends javax.swing.JFrame {
      * Creates new form AddCategoryView
      */
     public CategoryAddView() {
+        loadIcon();
         initComponents();
         categoryControllerInf = new CategoryController();
         this.setTitle("Add New Category");
         setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+    }
+
+    private void loadIcon() {
+        try {
+            Image appIcon = new IconCreator().loadApplicationIcon();
+            if (appIcon != null) {
+                setIconImage(appIcon);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
     }
 

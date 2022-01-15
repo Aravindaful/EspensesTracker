@@ -20,6 +20,10 @@ public interface IIncomeController {
 
     int addNewIncome(IncomeDto incomeDto) throws SQLException, ClassNotFoundException;
 
+    int updateIncome(IncomeDto incomeDto) throws SQLException, ClassNotFoundException;
+
+    int deleteIncome(long incomeId) throws SQLException, ClassNotFoundException;
+
     ArrayList<IncomeListDto> getIncomeListByMonth(int month) throws SQLException, ClassNotFoundException;
 
 }

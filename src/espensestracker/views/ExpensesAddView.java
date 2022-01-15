@@ -23,6 +23,8 @@ import javax.swing.JOptionPane;
 import espensestracker.controller.ICategoryController;
 import espensestracker.controller.IExpensesController;
 import espensestracker.dto.ExpensesListDto;
+import espensestracker.util.IconCreator;
+import java.awt.Image;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -41,6 +43,7 @@ public class ExpensesAddView extends javax.swing.JDialog {
      */
     public ExpensesAddView(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+        loadIcon();
         initComponents();
         this.setTitle("Add New Expense");
         expenditureController = new ExpensesController();
@@ -50,11 +53,25 @@ public class ExpensesAddView extends javax.swing.JDialog {
         currentEditingRow = null;
     }
 
+    private void loadIcon() {
+        try {
+            Image appIcon = new IconCreator().loadApplicationIcon();
+            if (appIcon != null) {
+                setIconImage(appIcon);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
     /**
      * Creates edit form ExpensesView
      */
     public ExpensesAddView(java.awt.Frame parent, boolean modal, ExpensesListDto editingRow, int index) {
         super(parent, modal);
+        loadIcon();
         initComponents();
         this.setTitle("Edit Expense");
         expenditureController = new ExpensesController();

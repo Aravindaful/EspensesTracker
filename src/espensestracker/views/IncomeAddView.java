@@ -21,6 +21,11 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import espensestracker.controller.ICategoryController;
 import espensestracker.controller.IIncomeController;
+import espensestracker.dto.IncomeListDto;
+import espensestracker.util.IconCreator;
+import java.awt.Image;
+import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  *
@@ -28,8 +33,9 @@ import espensestracker.controller.IIncomeController;
  */
 public class IncomeAddView extends javax.swing.JDialog {
 
-    private IIncomeController incomeControllerInf;
-    private ICategoryController categoryControllerInf;
+    private IIncomeController incomeController;
+    private ICategoryController categoryController;
+    IncomeListDto currentEditingRow;
 
     /**
      * Creates new form AddIncomeView
@@ -39,19 +45,57 @@ public class IncomeAddView extends javax.swing.JDialog {
      */
     public IncomeAddView(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+        loadIcon();
         initComponents();
         this.setTitle("Add New Income");
-        incomeControllerInf = new IncomeController();
-        categoryControllerInf = new CategoryController();
+        incomeController = new IncomeController();
+        categoryController = new CategoryController();
         numOnly(ammountTxt);
-        loadCategories();
+        loadCategories(-1, null);
     }
 
-    private void loadCategories() {
+    private void loadIcon() {
         try {
-            Vector<CategoryDto> list = new Vector<>(categoryControllerInf.GetCategoryList());
+            Image appIcon = new IconCreator().loadApplicationIcon();
+            if (appIcon != null) {
+                setIconImage(appIcon);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    public IncomeAddView(java.awt.Frame parent, boolean modal, IncomeListDto editingRow, int index) {
+        super(parent, modal);
+        loadIcon();
+        initComponents();
+        this.setTitle("Edit Income");
+        incomeController = new IncomeController();
+        categoryController = new CategoryController();
+        numOnly(ammountTxt);
+        loadCategories(0, editingRow);
+        currentEditingRow = editingRow;
+    }
+
+    private void loadCategories(int index, IncomeListDto editingRow) {
+        try {
+            Vector<CategoryDto> list = new Vector<>(categoryController.GetCategoryList());
             final DefaultComboBoxModel model = new DefaultComboBoxModel(list);
             categoryCmb.setModel(model);
+            if (index > -1) {
+                ArrayList<CategoryDto> arraylist = new ArrayList<CategoryDto>(list);
+                Optional<CategoryDto> categoryd = arraylist.stream().filter((x) -> editingRow.getCategoryName().equals(x.getCategoryName()))
+                        .findFirst();
+                if (categoryd.isPresent()) {
+                    CategoryDto aa = categoryd.get();
+                    categoryCmb.setSelectedItem(aa);
+                    ammountTxt.setText(editingRow.getAmount() + "");
+                    datePicker.setDate(editingRow.getDate());
+                }
+
+            }
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(ExpensesAddView.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -172,7 +216,14 @@ public class IncomeAddView extends javax.swing.JDialog {
                 incomeDto.setCategoryId(((CategoryDto) categoryCmb.getSelectedItem()).getCategoryId());
                 incomeDto.setAmount(Double.parseDouble(ammountTxt.getText()));
                 incomeDto.setDate(new java.sql.Date(datePicker.getDate().getTime()));
-                incomeControllerInf.addNewIncome(incomeDto);
+
+                if (this.currentEditingRow == null) {
+                    incomeController.addNewIncome(incomeDto);
+                } else {
+                    incomeDto.setIncomeId(this.currentEditingRow.getIncomeId());
+                    incomeController.updateIncome(incomeDto);
+                }
+
                 this.setVisible(false);
                 this.dispose();
             } catch (SQLException | ClassNotFoundException ex) {

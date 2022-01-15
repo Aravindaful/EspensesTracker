@@ -21,6 +21,8 @@ import org.jfree.data.general.PieDataset;
 import org.jfree.util.Rotation;
 import espensestracker.controller.ICategoryController;
 import espensestracker.controller.IExpensesController;
+import espensestracker.util.IconCreator;
+import java.awt.Image;
 
 /**
  *
@@ -39,6 +41,7 @@ public class StatisticsView extends javax.swing.JFrame {
         super("Statistics");
 
         initComponents();
+        loadIcon();
         this.month = month;
         expenditureController = new ExpensesController();
         categoryController = new CategoryController();
@@ -47,6 +50,19 @@ public class StatisticsView extends javax.swing.JFrame {
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);
+    }
+
+    private void loadIcon() {
+        try {
+            Image appIcon = new IconCreator().loadApplicationIcon();
+            if (appIcon != null) {
+                setIconImage(appIcon);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
     }
 
     private DefaultPieDataset getPieChartData() {

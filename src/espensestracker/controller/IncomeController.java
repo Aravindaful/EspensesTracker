@@ -22,32 +22,43 @@ import espensestracker.controller.IIncomeController;
  *
  * @author Aravinda
  */
-public class IncomeController implements  IIncomeController{
-    
+public class IncomeController implements IIncomeController {
+
     private Income income;
     private final ModelMapper modelMapper;
 
-    public IncomeController(){
+    public IncomeController() {
         modelMapper = ExpensesTrackerModelMapper.getModelMapper();
         income = new Income();
     }
-    
+
     @Override
-    public double getIncomeTotalByMonth(int month) throws SQLException, ClassNotFoundException{
-       return income.getIncomeTotalByMonth(month);
+    public double getIncomeTotalByMonth(int month) throws SQLException, ClassNotFoundException {
+        return income.getIncomeTotalByMonth(month);
     }
-    
+
     @Override
     public int addNewIncome(IncomeDto incomeDto) throws SQLException, ClassNotFoundException {
         income = modelMapper.map(incomeDto, Income.class);
         return income.AddNewIncome();
     }
-    
-      public ArrayList<IncomeListDto> getIncomeListByMonth(int month) throws SQLException, ClassNotFoundException {
+
+    public ArrayList<IncomeListDto> getIncomeListByMonth(int month) throws SQLException, ClassNotFoundException {
         Type listType = new TypeToken<ArrayList<IncomeListDto>>() {
-        }.getType();        
-         ArrayList<Income> expenditures = income.GetIncomeListByMonth(month);
-        return modelMapper.map(expenditures, listType);
+        }.getType();
+        ArrayList<Income> incomeSet = income.GetIncomeListByMonth(month);
+        return modelMapper.map(incomeSet, listType);
     }
-    
+
+    @Override
+    public int updateIncome(IncomeDto incomeDto) throws SQLException, ClassNotFoundException {
+        income = modelMapper.map(incomeDto, Income.class);
+        return income.UpdateIncome();
+    }
+
+    @Override
+    public int deleteIncome(long incomeId) throws SQLException, ClassNotFoundException {
+        return income.DeleteIncome(incomeId);
+    }
+
 }

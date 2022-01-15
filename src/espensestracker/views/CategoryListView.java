@@ -18,6 +18,8 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import espensestracker.controller.ICategoryController;
+import espensestracker.util.IconCreator;
+import java.awt.Image;
 
 /**
  *
@@ -34,7 +36,6 @@ public class CategoryListView extends javax.swing.JPanel {
         System.out.println("Category view called");
         initComponents();
         categoryController = new CategoryController();
-
         loadCategoryData();
     }
 
@@ -52,7 +53,6 @@ public class CategoryListView extends javax.swing.JPanel {
             listCategories.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
             listCategories.setLayoutOrientation(JList.VERTICAL_WRAP);
             this.listCategories.setVisibleRowCount(-1);
-            
 
             this.jScrollPane2.repaint();
             this.jScrollPane2.revalidate();

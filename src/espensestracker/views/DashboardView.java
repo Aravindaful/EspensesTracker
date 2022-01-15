@@ -5,27 +5,48 @@
  */
 package espensestracker.views;
 
+import espensestracker.util.IconCreator;
 import espensestracker.util.ViewIndex;
 import espensestracker.views.CategoryListView;
 import espensestracker.views.ExpensesListView;
 import espensestracker.views.IncomeListView;
 import espensestracker.views.DashboardDataView;
 import espensestracker.viewer.ViewHandler;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JTabbedPane;
 
- 
 public class DashboardView extends javax.swing.JFrame {
-  
+
     public DashboardView() {
+        loadIcon();
         this.setTitle("Expenses Tracker");
         initComponents();
         loadDashboardData(1);
+
     }
 
     private void loadDashboardData(int month) {
         ViewHandler.OpenViewer(ViewIndex.SUMMARY_VIEW, dashboardMonthCmb.getSelectedIndex() + 1, this.mainContainer);
+
     }
- 
+
+    private void loadIcon() {
+        try {
+            Image appIcon = new IconCreator().loadApplicationIcon();
+            if (appIcon != null) {
+                setIconImage(appIcon);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

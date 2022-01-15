@@ -21,6 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import espensestracker.controller.IIncomeController;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -28,12 +29,16 @@ import espensestracker.controller.IIncomeController;
  */
 public class IncomeListView extends javax.swing.JPanel {
 
-    private IIncomeController incomeControllerInf;
+    private IIncomeController incomeController;
+    private int currentEditingRowIndex = -1;
+    private ArrayList<IncomeListDto> currentIncomeList;
+    private int currentMonth;
 
     /**
      * Creates new form IncomeView
      */
     public IncomeListView(int month) {
+        currentIncomeList = new ArrayList();
         System.out.println("Income view called");
         initComponents();
         DefaultTableCellRenderer tableCellRenderer = new DefaultTableCellRenderer();
@@ -41,17 +46,27 @@ public class IncomeListView extends javax.swing.JPanel {
         TableColumn tableColumn = tblIncome.getColumnModel().getColumn(1);
         tblIncome.setBackground(UIManager.getColor(new JTableHeader().getBackground()));
         tableColumn.setCellRenderer(tableCellRenderer);
-        incomeControllerInf = new IncomeController();
+        incomeController = new IncomeController();
         loadIncomeData(month);
+        currentMonth = month;
+        tblIncome.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = tblIncome.rowAtPoint(evt.getPoint());
+                currentEditingRowIndex = row;
+                btnIncomeEdit.setEnabled(true);
+                btnIncomeDelete.setEnabled(true);
+            }
+        });
     }
 
     private double loadIncomeData(int month) {
         double total = 0.00;
         try {
-            ArrayList<IncomeListDto> incomesByMonth = incomeControllerInf.getIncomeListByMonth(month);
+            currentIncomeList = incomeController.getIncomeListByMonth(month);
             DefaultTableModel model = (DefaultTableModel) tblIncome.getModel();
             model.setNumRows(0);
-            total = incomesByMonth.stream().map((icom) -> {
+            total = currentIncomeList.stream().map((icom) -> {
                 model.addRow(new Object[]{icom.getCategoryName(),
                     Formatter.currencyFormat(icom.getAmount())});
                 return icom;
@@ -76,6 +91,8 @@ public class IncomeListView extends javax.swing.JPanel {
         tblIncome = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
         btnIncomeAdd = new javax.swing.JButton();
+        btnIncomeEdit = new javax.swing.JButton();
+        btnIncomeDelete = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(228, 239, 247));
 
@@ -122,13 +139,32 @@ public class IncomeListView extends javax.swing.JPanel {
             }
         });
 
+        btnIncomeEdit.setBackground(new java.awt.Color(159, 199, 247));
+        btnIncomeEdit.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnIncomeEdit.setForeground(new java.awt.Color(25, 144, 234));
+        btnIncomeEdit.setText("Edit");
+        btnIncomeEdit.setEnabled(false);
+        btnIncomeEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnIncomeEditActionPerformed(evt);
+            }
+        });
+
+        btnIncomeDelete.setBackground(new java.awt.Color(159, 199, 247));
+        btnIncomeDelete.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnIncomeDelete.setForeground(new java.awt.Color(25, 144, 234));
+        btnIncomeDelete.setText("Delete");
+        btnIncomeDelete.setEnabled(false);
+        btnIncomeDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnIncomeDeleteActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(btnIncomeAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 658, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -136,8 +172,16 @@ public class IncomeListView extends javax.swing.JPanel {
                             .addComponent(jLabel2)
                             .addComponent(jLabel1))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 763, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnIncomeAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnIncomeEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnIncomeDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -148,21 +192,74 @@ public class IncomeListView extends javax.swing.JPanel {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnIncomeAdd)
-                .addContainerGap(130, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnIncomeAdd)
+                    .addComponent(btnIncomeEdit)
+                    .addComponent(btnIncomeDelete))
+                .addContainerGap(135, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnIncomeAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIncomeAddActionPerformed
         IncomeAddView addIncomeView = new IncomeAddView(null, true);
         addIncomeView.setLocationRelativeTo(null);
+        addIncomeView.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                System.out.println("Espenses add closed");
+                loadIncomeData(currentMonth);
+            }
+        });
         addIncomeView.setVisible(true);
     }//GEN-LAST:event_btnIncomeAddActionPerformed
+
+    private void btnIncomeEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIncomeEditActionPerformed
+         if (this.currentEditingRowIndex > -1 && currentIncomeList.size() > 0) {
+            IncomeListDto editingRow = currentIncomeList.get(currentEditingRowIndex);
+            IncomeAddView incomeView = new IncomeAddView(null, true, editingRow, currentEditingRowIndex);
+            incomeView.setLocationRelativeTo(null);
+            incomeView.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                    System.out.println("Income Edit closed");
+                    btnIncomeEdit.setEnabled(false);
+                    btnIncomeDelete.setEnabled(false);
+                    currentEditingRowIndex = -1;
+                    loadIncomeData(currentMonth);
+                }
+            });
+            incomeView.setVisible(true);
+        }
+    }//GEN-LAST:event_btnIncomeEditActionPerformed
+
+    private void btnIncomeDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIncomeDeleteActionPerformed
+         int reply = JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION) {
+            System.out.println("Yes clicked");
+            IncomeListDto editingRow = currentIncomeList.get(currentEditingRowIndex);
+
+            try {
+                int result = incomeController.deleteIncome(editingRow.getIncomeId());
+                if (result > -1) {
+                    btnIncomeEdit.setEnabled(false);
+                    btnIncomeDelete.setEnabled(false);
+                    currentEditingRowIndex = -1;
+                    loadIncomeData(currentMonth);
+                }
+            } catch (Exception ex) {
+                Logger.getLogger(ExpensesListView.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, "Failed to delete this record. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnIncomeDeleteActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnIncomeAdd;
+    private javax.swing.JButton btnIncomeDelete;
+    private javax.swing.JButton btnIncomeEdit;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;

@@ -22,4 +22,5 @@ public interface IExpensesController {
 
     ArrayList<ExpensesListDto> getExpensesListByMonth(int month) throws SQLException, ClassNotFoundException;
 
+    int deleteExpensesById(long expenseId) throws SQLException, ClassNotFoundException;
 }
